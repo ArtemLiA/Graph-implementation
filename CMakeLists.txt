@@ -3,4 +3,4 @@ project(LabWork3)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(LabWork3 main.cpp Graph.cpp Graph.h)
+add_executable(LabWork3 main.cpp Graph.h Node.h Edge.h)
