@@ -4,154 +4,119 @@
 #include "Node.h"
 #include "Edge.h"
 #include <map>
-#include <set>
 #include <list>
 
 typedef unsigned int uint;
 
 template<class node_type, class weight_type, class key_type = uint>
 class Graph {
+    using iterator = typename std::map<key_type, node_type>::iterator;
+    using const_iterator = typename std::map<key_type, node_type>::const_iterator;
 protected:
-    std::map<key_type, node_type> num_nodes;
-    std::map<node_type, uint> nodes; //Вершины
-    std::map<std::pair<key_type, key_type>, weight_type> edges; //Рёбра
+    std::map<key_type, node_type> nodes;
+    std::list<Edge<weight_type, key_type>> graph;
     uint size_;
 public:
-    Graph(): size_(0){};
-    Graph(std::initializer_list<std::pair<std::pair<node_type, node_type>, weight_type>> list);
+    //Constructors
+    Graph();
     Graph(const Graph<node_type, weight_type, key_type>& other);
     Graph(Graph<node_type, weight_type, key_type>&& other) noexcept;
+    //Operators
     Graph<node_type, weight_type, key_type>& operator=(const Graph<node_type, weight_type, key_type>& other);
     Graph<node_type, weight_type, key_type>& operator=(Graph<node_type, weight_type, key_type>&& other) noexcept;
-
-    bool empty();
-    size_t size();
-    void clear() noexcept;
-    void swap(Graph<node_type, weight_type, key_type>& other) noexcept;
-    void print_nodes();
-    void print_edges();
+    //Basic methods
+    bool empty() const;
+    size_t size() const;
+    void clear();
+    void swap(Graph<node_type, weight_type, key_type>& g);
+    //Iterators
+    iterator begin();
+    iterator end();
+    const_iterator cbegin() const;
+    const_iterator cend() const;
 };
 
-template<class node_type, class weight_type, class key_type>
-Graph<node_type, weight_type, key_type>::
-Graph(const Graph<node_type, weight_type, key_type>& other){
-    num_nodes = other.num_nodes;
+//CONSTRUCTORS
+template<class n_type, class w_type, class k_type>
+Graph<n_type, w_type, k_type>:: Graph(): nodes(), graph(), size_(0){};
+
+template<class n_type, class w_type, class k_type>
+Graph<n_type, w_type, k_type>::Graph(const Graph<n_type, w_type, k_type> &other){
     nodes = other.nodes;
-    edges = other.edges;
+    graph = other.graph;
     size_ = other.size_;
 }
 
-template<class node_type, class weight_type, class key_type>
-Graph<node_type, weight_type, key_type>::
-Graph(Graph<node_type, weight_type, key_type>&& other) noexcept{
-    num_nodes = std::move(other.num_nodes);
-    nodes = std::move(other.nodes);
-    edges = std::move(other.edges);
+template<class n_type, class w_type, class k_type>
+Graph<n_type, w_type, k_type>::Graph(Graph<n_type, w_type, k_type> &&other) noexcept:
+    nodes(std::move(other.nodes)),
+    graph(std::move(other.graph)){
     size_ = other.size_;
     other.size_ = 0;
 }
 
-template<class node_type, class weight_type, class key_type>
-Graph<node_type, weight_type, key_type>& Graph<node_type, weight_type, key_type>::
-operator=(const Graph<node_type, weight_type, key_type>& other){
-    num_nodes = other.num_nodes;
+//OPERATORS
+template<class n_type, class w_type, class k_type>
+Graph<n_type, w_type, k_type>& Graph<n_type, w_type, k_type>::operator=(const Graph<n_type, w_type, k_type> &other) {
     nodes = other.nodes;
-    edges = other.edges;
+    graph = other.graph;
     size_ = other.size_;
     return *this;
 }
 
-template<class node_type, class weight_type, class key_type>
-Graph<node_type, weight_type, key_type>& Graph<node_type, weight_type, key_type>::
-operator=(Graph<node_type, weight_type, key_type>&& other) noexcept{
-
-    num_nodes = std::move(other.num_nodes);
+template<class n_type, class w_type, class k_type>
+Graph<n_type, w_type, k_type>& Graph<n_type, w_type, k_type>::operator=(
+        Graph<n_type, w_type, k_type> &&other) noexcept {
     nodes = std::move(other.nodes);
-    edges = std::move(other.edges);
-    size_ = other.size_;
+    graph = std::move(other.graph);
+    size_ = std::move(other.size_);
     other.size_ = 0;
-
     return *this;
 }
 
-template<class node_type, class weight_type, class key_type>
-bool Graph<node_type, weight_type, key_type>::empty() {
+//BASIC METHODS
+template<class n_type, class w_type, class k_type>
+bool Graph<n_type, w_type, k_type>::empty() const {
     return size_ == 0;
 }
 
-template<class Node_type, class Weight_type, class key_type>
-size_t Graph<Node_type, Weight_type, key_type>:: size(){
+template<class n_type, class w_type, class k_type>
+size_t Graph<n_type, w_type, k_type>::size() const {
     return size_;
 }
 
-template<class node_type, class weight_type, class key_type>
-void Graph<node_type, weight_type, key_type>:: clear() noexcept{
-    num_nodes.clear();
+template<class n_type, class w_type, class k_type>
+void Graph<n_type, w_type, k_type>::clear() {
     nodes.clear();
-    edges.clear();
+    graph.clear();
     size_ = 0;
 }
 
-template<class node_type, class weight_type, class key_type>
-void Graph<node_type, weight_type, key_type>::
-swap(Graph<node_type, weight_type, key_type>& other) noexcept{
-    std::swap(num_nodes, other.num_nodes);
-    std::swap(nodes, other.nodes);
-    std::swap(edges, other.edges);
-    std::swap(size_, other.size_);
+template<class n_type, class w_type, class k_type>
+void Graph<n_type, w_type, k_type>::swap(Graph<n_type, w_type, k_type> &g) {
+    std::swap(nodes, g.nodes);
+    std::swap(graph, g.graph);
+    std::swap(size_, g.size_);
 }
 
-template<class node_type, class weight_type, class key_type>
-void Graph<node_type, weight_type, key_type>::print_nodes() {
-    for (auto node: num_nodes){
-        std::cout << "(" << node.first << " " << node.second << ")" << std::endl;
-    }
+template<class n_type, class w_type, class k_type>
+typename Graph<n_type, w_type, k_type>::iterator Graph<n_type, w_type, k_type>::begin(){
+    return nodes.begin();
 }
 
-template<class node_type, class weight_type, class key_type>
-void Graph<node_type, weight_type, key_type>::print_edges() {
-    for (auto edge: edges){
-        std::cout << num_nodes[edge.first.first] << "  ---["
-                  << edge.second << "]-->  " << num_nodes[edge.first.second] <<
-                  std::endl;
-    }
+template<class n_type, class w_type, class k_type>
+typename Graph<n_type, w_type, k_type>::iterator Graph<n_type, w_type, k_type>::end(){
+    return nodes.end();
 }
 
-template<class node_type, class weight_type, class key_type>
-Graph<node_type, weight_type, key_type>::Graph(
-        std::initializer_list<std::pair<std::pair<node_type, node_type>, weight_type>> list){
-    size_ = 0;
-    for (auto iter = list.begin(); iter != list.end(); iter++){
-        if (iter->first.first == iter->first.second){
-            throw std::out_of_range("There are loops");
-        }
-        if (!nodes.contains(iter->first.first) && !nodes.contains(iter->first.second)){
-            nodes[iter->first.first] = size_;
-            num_nodes[size_] = iter->first.first;
-            size_++;
-            nodes[iter->first.second] = size_;
-            num_nodes[size_] = iter->first.second;
-            size_++;
-            edges[std::make_pair(nodes[iter->first.first], nodes[iter->first.second])] = iter->second;
-            continue;
-        }
-        if (!nodes.contains(iter->first.first)){
-            nodes[iter->first.first] = size_;
-            num_nodes[size_] = iter->first.first;
-            ++size_;
-            edges[std::make_pair(nodes[iter->first.first], nodes[iter->first.second])] = iter->second;
-            continue;
-        }
-        if (!nodes.contains(iter->first.second)){
-            nodes[iter->first.second] = size_;
-            num_nodes[size_] = iter->first.second;
-            ++size_;
-            edges[std::make_pair(nodes[iter->first.first], nodes[iter->first.second])] = iter->second;
-            continue;
-        }
-        edges[std::make_pair(nodes[iter->first.first], nodes[iter->first.second])] = iter->second;
-    }
+template<class n_type, class w_type, class k_type>
+typename Graph<n_type, w_type, k_type>::const_iterator Graph<n_type, w_type, k_type>::cbegin() const {
+    return nodes.cbegin();
 }
 
+template<class n_type, class w_type, class k_type>
+typename Graph<n_type, w_type, k_type>::const_iterator Graph<n_type, w_type, k_type>::cend() const {
+    return nodes.cend();
+}
 
 #endif //LABWORK3_GRAPH_H
