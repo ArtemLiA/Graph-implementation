@@ -52,6 +52,7 @@ public:
     bool erase_edges_go_from(key_type key);
     bool erase_edges_go_to(key_type key);
     bool erase_node(key_type key);
+
 };
 
 //CONSTRUCTORS
@@ -135,6 +136,29 @@ typename Graph<n_type, w_type, k_type>::const_iterator Graph<n_type, w_type, k_t
 template<class n_type, class w_type, class k_type>
 typename Graph<n_type, w_type, k_type>::const_iterator Graph<n_type, w_type, k_type>::cend() const {
     return nodes.cend();
+}
+
+template<class n_type, class w_type, class k_type>
+size_t Graph<n_type, w_type, k_type>::degree_in(k_type key) const {
+    size_t n = 0;
+    auto p = [&](const Edge<w_type, k_type> edge){if (edge.second() == key){n++;}};
+    std::for_each(graph.begin(), graph.end(), p);
+    return n;
+}
+
+template<class n_type, class w_type, class k_type>
+size_t Graph<n_type, w_type, k_type>::degree_out(k_type key) const {
+    size_t n = 0;
+    auto p = [&](const Edge<w_type, k_type> edge){if (edge.first() == key){n++;}};
+    std::for_each(graph.begin(), graph.end(), p);
+    return n;
+}
+
+template<class n_type, class w_type, class k_type>
+bool Graph<n_type, w_type, k_type>::loop(k_type key) const {
+    auto p = [&](const Edge<w_type, k_type> edge){return (edge.first() == key && edge.second() == key);};
+    auto iter = std::find_if(graph.begin(), graph.end(), p);
+    return iter != graph.end();
 }
 
 #endif //LABWORK3_GRAPH_H
