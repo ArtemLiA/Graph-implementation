@@ -13,5 +13,8 @@ int main() {
     auto cend = g1.cend();
     std::cout << "program completed successfully" << std::endl;
     std::cout << cbeg->first << cbeg ->second << std::endl;
+    std::cout << g1.loop(0) << std::endl;
+    std::cout << g1.degree_in(5) << std::endl;
+    std::cout << g1.degree_out(0) << std::endl;
     return 0;
 }
