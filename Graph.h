@@ -1,18 +1,17 @@
 #ifndef LABWORK3_GRAPH_H
 #define LABWORK3_GRAPH_H
-#include <iostream>
-#include "Node.h"
-#include "Edge.h"
 #include <map>
 #include <list>
+#include "Edge.h"
+
 
 typedef unsigned int uint;
 
 template<class node_type, class weight_type, class key_type = uint>
 class Graph {
+protected:
     using iterator = typename std::map<key_type, node_type>::iterator;
     using const_iterator = typename std::map<key_type, node_type>::const_iterator;
-protected:
     std::map<key_type, node_type> nodes;
     std::list<Edge<weight_type, key_type>> graph;
     uint size_;
@@ -34,6 +33,25 @@ public:
     iterator end();
     const_iterator cbegin() const;
     const_iterator cend() const;
+    //Methods for work with graph data
+    size_t degree_in(key_type key) const;
+    size_t degree_out(key_type key) const;
+    bool loop(key_type key) const;
+    //Inserting nodes and edges
+    std::pair<iterator, bool> insert_node(key_type key, node_type value = node_type());
+    std::pair<iterator, bool> insert_node(std::pair<key_type, node_type> node);
+    std::pair<iterator, bool> insert_or_assign_node(key_type key, node_type value = node_type());
+    std::pair<iterator, bool> insert_or_assign_node(std::pair<key_type, node_type> node);
+
+    std::pair<iterator, bool> insert_edge(key_type begin, key_type end, weight_type weight);
+    std::pair<iterator, bool> insert_edge(std::pair<key_type, key_type> edge, weight_type weight);
+    std::pair<iterator, bool> insert_or_assign_edge(key_type begin, key_type end, weight_type weight);
+    std::pair<iterator, bool> insert_of_assign_edge(std::pair<key_type, key_type> edge, weight_type weight);
+    //Erasing nodes and edges
+    void clear_edges();
+    bool erase_edges_go_from(key_type key);
+    bool erase_edges_go_to(key_type key);
+    bool erase_node(key_type key);
 };
 
 //CONSTRUCTORS
