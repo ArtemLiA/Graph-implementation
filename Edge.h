@@ -12,6 +12,7 @@ public:
     std::pair<key_type, key_type> get_nodes() const;
     key_type first() const;
     key_type second() const;
+    weight_type get_weight() const;
     bool is_starting_equal(key_type beg) const;
     bool is_ending_equal(key_type end) const;
 };
@@ -35,6 +36,11 @@ key_type Edge<weight_type, key_type>::first() const{
 template<class weight_type, class key_type>
 key_type Edge<weight_type, key_type>::second() const {
     return nodes.second;
+}
+
+template<class weight_type, class key_type>
+weight_type Edge<weight_type, key_type>::get_weight() const {
+    return weight;
 }
 
 template<class weight_type, class key_type>
