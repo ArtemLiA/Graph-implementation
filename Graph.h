@@ -46,7 +46,7 @@ public:
     std::pair<iterator, bool> insert_edge(key_type begin, key_type end, weight_type weight);
     std::pair<iterator, bool> insert_edge(std::pair<key_type, key_type> edge, weight_type weight);
     std::pair<iterator, bool> insert_or_assign_edge(key_type begin, key_type end, weight_type weight);
-    std::pair<iterator, bool> insert_of_assign_edge(std::pair<key_type, key_type> edge, weight_type weight);
+    std::pair<iterator, bool> insert_or_assign_edge(std::pair<key_type, key_type> edge, weight_type weight);
     //Erasing nodes and edges
     void clear_edges();
     bool erase_edges_go_from(key_type key);
@@ -138,6 +138,7 @@ typename Graph<n_type, w_type, k_type>::const_iterator Graph<n_type, w_type, k_t
     return nodes.cend();
 }
 
+//WORK WITH GRAPH DATA
 template<class n_type, class w_type, class k_type>
 size_t Graph<n_type, w_type, k_type>::degree_in(k_type key) const {
     //Node existence check
@@ -181,5 +182,39 @@ bool Graph<n_type, w_type, k_type>::loop(k_type key) const {
     auto it = std::find_if(graph.begin(), graph.end(), p);
     return it != graph.end();
 }
+
+//INSERTING NODES AND EDGES
+template<class n_type, class w_type, class k_type>
+std::pair<typename Graph<n_type, w_type, k_type>::iterator, bool> Graph<n_type, w_type, k_type>::insert_node(
+        k_type key, n_type value) {
+    return nodes.insert(std::make_pair(key, value));
+}
+
+template<class n_type, class w_type, class k_type>
+std::pair<typename Graph<n_type, w_type, k_type>::iterator, bool> Graph<n_type, w_type, k_type>::insert_node(
+        std::pair<k_type, n_type> node) {
+    return nodes.insert(node);
+}
+
+template<class n_type, class w_type, class k_type>
+std::pair<typename Graph<n_type, w_type, k_type>::iterator, bool> Graph<n_type, w_type, k_type>::insert_or_assign_node(
+        k_type key, n_type value) {
+    if (nodes.contains(key)){
+        nodes[key] = value;
+        return std::make_pair(nodes.find(key), true);
+    }
+    return nodes.insert(std::make_pair(key, value));
+}
+
+template<class n_type, class w_type, class k_type>
+std::pair<typename Graph<n_type, w_type, k_type>::iterator, bool> Graph<n_type, w_type, k_type>::insert_or_assign_node(
+        std::pair<k_type, n_type> node) {
+    if (nodes.contains(node.first)){
+        nodes[node.first] = node.second;
+        return std::make_pair(nodes.find(node.first), true);
+    }
+    return nodes.insert(node);
+}
+
 
 #endif //LABWORK3_GRAPH_H
