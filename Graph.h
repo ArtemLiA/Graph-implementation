@@ -2,6 +2,7 @@
 #define LABWORK3_GRAPH_H
 #include <map>
 #include <list>
+#include <fstream>
 #include "Edge.h"
 
 
@@ -53,7 +54,8 @@ public:
     bool erase_edges_go_from(key_type key);
     bool erase_edges_go_to(key_type key);
     bool erase_node(key_type key);
-
+    //Working with file
+    bool load_from_file(const std::string& path);
 };
 
 //CONSTRUCTORS
@@ -213,7 +215,7 @@ template<class n_type, class w_type, class k_type>
 std::pair<typename Graph<n_type, w_type, k_type>::e_iterator, bool> Graph<n_type, w_type, k_type>::insert_edge(
         k_type begin, k_type end, w_type weight) {
     if (!nodes.contains(begin) || !nodes.contains(end)){
-        throw std::out_of_range("No such node ");
+        throw std::out_of_range("No such node");
     }
     Edge<w_type, k_type> new_edge(begin, end, weight);
     return std::make_pair(graph.insert(graph.end(), new_edge), true);
@@ -223,7 +225,7 @@ template<class n_type, class w_type, class k_type>
 std::pair<typename Graph<n_type, w_type, k_type>::e_iterator, bool> Graph<n_type, w_type, k_type>::insert_edge(
         std::pair<k_type, k_type> pair, w_type weight) {
     if (!nodes.contains(pair.first) || !nodes.contains(pair.second)){
-        throw std::out_of_range("No such node ");
+        throw std::out_of_range("No such node");
     }
     Edge<w_type, k_type> new_edge(pair, weight);
     return std::make_pair(graph.insert(graph.end(), new_edge), true);
@@ -233,7 +235,7 @@ template<class n_type, class w_type, class k_type>
 std::pair<typename Graph<n_type, w_type, k_type>::e_iterator, bool> Graph<n_type, w_type, k_type>::insert_or_assign_edge(
         k_type begin, k_type end, w_type weight) {
     if (!nodes.contains(begin) || !nodes.contains(end)){
-        throw std::out_of_range("No such node ");
+        throw std::out_of_range("No such node");
     }
     auto pred = [&](const Edge<w_type, k_type> edge){return edge.first() == begin && edge.second() == end;};
     auto iter = std::find_if(graph.begin(), graph.end(), pred);
@@ -250,7 +252,7 @@ std::pair<typename Graph<n_type, w_type, k_type>::e_iterator, bool> Graph<n_type
         std::pair<k_type, k_type> pair, w_type weight) {
 
     if (!nodes.contains(pair.first) || !nodes.contains(pair.second)){
-        throw std::out_of_range("No such node ");
+        throw std::out_of_range("No such node");
     }
     auto pred = [&](const Edge<w_type, k_type> edge){return edge.first() == pair.first && edge.second() == pair.second;};
     auto iter = std::find_if(graph.begin(), graph.end(), pred);
@@ -263,6 +265,7 @@ std::pair<typename Graph<n_type, w_type, k_type>::e_iterator, bool> Graph<n_type
     return std::make_pair(iter, false);
 }
 
+//ERASING NODES AND EDGES
 template<class n_type, class w_type, class k_type>
 void Graph<n_type, w_type, k_type>::clear_edges() {
     graph.clear();
@@ -293,6 +296,51 @@ bool Graph<n_type, w_type, k_type>::erase_node(k_type key) {
     }
     std::erase_if(graph, [&](const Edge<w_type, k_type> edge){return edge.first() == key || edge.second() == key;});
     nodes.erase(key);
+    return true;
+}
+
+template<class n_type, class w_type, class k_type>
+bool Graph<n_type, w_type, k_type>::load_from_file(const std::string& path){
+    std::fstream file;
+    file.open(path);
+    if (!file.is_open()){
+        return false;
+    }
+    size_t nodes_number;
+    size_t edges_number;
+    //Read dimensions
+    file >> nodes_number;
+    file >> edges_number;
+    //Containers
+    std::map<k_type, n_type> nodes_map;
+    std::list<Edge<w_type, k_type>> edges_list;
+    //Values for read
+    k_type node_key;
+    n_type node_value;
+    for (size_t idx = 0; idx < nodes_number; idx++){
+        file >> node_key;
+        file >> node_value;
+        nodes_map[node_key] = node_value;
+    }
+    //Values for read
+    k_type begin = k_type();
+    k_type end = k_type();
+    w_type weight = w_type();
+    Edge<w_type, k_type> new_edge(begin, end, weight);
+    for (size_t idx = 0; idx < edges_number; idx++){
+        file >> begin;
+        file >> end;
+        file >> weight;
+        if (!nodes_map.contains(begin) || !nodes_map.contains(end)){
+            file.close();
+            throw std::out_of_range("Incorrect data in the file");
+        }
+        std::cout << begin << " " << end << " " << weight << std::endl;
+        new_edge.set_value(begin, end, weight);
+        edges_list.insert(edges_list.end(), new_edge);
+    }
+    nodes = std::move(nodes_map);
+    graph = std::move(edges_list);
     return true;
 }
 
