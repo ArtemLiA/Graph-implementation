@@ -248,11 +248,13 @@ std::pair<typename Graph<n_type, w_type, k_type>::e_iterator, bool> Graph<n_type
 template<class n_type, class w_type, class k_type>
 std::pair<typename Graph<n_type, w_type, k_type>::e_iterator, bool> Graph<n_type, w_type, k_type>::insert_or_assign_edge(
         std::pair<k_type, k_type> pair, w_type weight) {
+
     if (!nodes.contains(pair.first) || !nodes.contains(pair.second)){
         throw std::out_of_range("No such node ");
     }
     auto pred = [&](const Edge<w_type, k_type> edge){return edge.first() == pair.first && edge.second() == pair.second;};
     auto iter = std::find_if(graph.begin(), graph.end(), pred);
+
     if (iter == graph.end()){
         Edge<w_type, k_type> new_edge(pair, weight);
         return std::make_pair(graph.insert(iter, new_edge), true);
@@ -261,6 +263,37 @@ std::pair<typename Graph<n_type, w_type, k_type>::e_iterator, bool> Graph<n_type
     return std::make_pair(iter, false);
 }
 
+template<class n_type, class w_type, class k_type>
+void Graph<n_type, w_type, k_type>::clear_edges() {
+    graph.clear();
+}
 
+template<class n_type, class w_type, class k_type>
+bool Graph<n_type, w_type, k_type>::erase_edges_go_from(k_type key) {
+    if (!nodes.contains(key)){
+        return false;
+    }
+    std::erase_if(graph, [&](const Edge<w_type, k_type> edge){return edge.first() == key;});
+    return true;
+}
+
+template<class n_type, class w_type, class k_type>
+bool Graph<n_type, w_type, k_type>::erase_edges_go_to(k_type key) {
+    if (!nodes.contains(key)){
+        return false;
+    }
+    std::erase_if(graph, [&](const Edge<w_type, k_type> edge){return edge.second() == key;});
+    return true;
+}
+
+template<class n_type, class w_type, class k_type>
+bool Graph<n_type, w_type, k_type>::erase_node(k_type key) {
+    if (!nodes.contains(key)){
+        return false;
+    }
+    std::erase_if(graph, [&](const Edge<w_type, k_type> edge){return edge.first() == key || edge.second() == key;});
+    nodes.erase(key);
+    return true;
+}
 
 #endif //LABWORK3_GRAPH_H
