@@ -28,5 +28,11 @@ int main() {
     std::cout << "key:" << pair3.first->first << " value:" << pair3.first->second <<
                                                "  bool:" << pair3.second << std::endl;
     std::cout << std::endl << "size of graph:" << g1.size() << std::endl;
+    std::cout << g1.loop(4) << std::endl;
+    g1.insert_edge(1, 1, 2);
+    g1.insert_edge(3, 1, 7);
+    std::cout << g1.insert_or_assign_edge(1, 1, 3).second << std::endl;
+    std::cout << g1.insert_or_assign_edge(std::make_pair(3, 3), 4).second << std::endl;
+    std::cout << g1.loop(0) << std::endl;
     return 0;
 }
