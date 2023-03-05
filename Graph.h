@@ -12,6 +12,8 @@ class Graph {
 protected:
     using iterator = typename std::map<key_type, node_type>::iterator;
     using const_iterator = typename std::map<key_type, node_type>::const_iterator;
+    using e_iterator = typename std::list<Edge<weight_type, key_type>>::iterator;
+    using e_const_iterator = typename std::list<Edge<weight_type, key_type>>::const_iterator;
     std::map<key_type, node_type> nodes;
     std::list<Edge<weight_type, key_type>> graph;
 public:
@@ -42,10 +44,10 @@ public:
     std::pair<iterator, bool> insert_or_assign_node(key_type key, node_type value = node_type());
     std::pair<iterator, bool> insert_or_assign_node(std::pair<key_type, node_type> node);
 
-    std::pair<iterator, bool> insert_edge(key_type begin, key_type end, weight_type weight);
-    std::pair<iterator, bool> insert_edge(std::pair<key_type, key_type> edge, weight_type weight);
-    std::pair<iterator, bool> insert_or_assign_edge(key_type begin, key_type end, weight_type weight);
-    std::pair<iterator, bool> insert_or_assign_edge(std::pair<key_type, key_type> edge, weight_type weight);
+    std::pair<e_iterator, bool> insert_edge(key_type begin, key_type end, weight_type weight);
+    std::pair<e_iterator, bool> insert_edge(std::pair<key_type, key_type> pair, weight_type weight);
+    std::pair<e_iterator, bool> insert_or_assign_edge(key_type begin, key_type end, weight_type weight);
+    std::pair<e_iterator, bool> insert_or_assign_edge(std::pair<key_type, key_type> pair, weight_type weight);
     //Erasing nodes and edges
     void clear_edges();
     bool erase_edges_go_from(key_type key);
@@ -206,6 +208,59 @@ std::pair<typename Graph<n_type, w_type, k_type>::iterator, bool> Graph<n_type, 
     }
     return nodes.insert(node);
 }
+
+template<class n_type, class w_type, class k_type>
+std::pair<typename Graph<n_type, w_type, k_type>::e_iterator, bool> Graph<n_type, w_type, k_type>::insert_edge(
+        k_type begin, k_type end, w_type weight) {
+    if (!nodes.contains(begin) || !nodes.contains(end)){
+        throw std::out_of_range("No such node ");
+    }
+    Edge<w_type, k_type> new_edge(begin, end, weight);
+    return std::make_pair(graph.insert(graph.end(), new_edge), true);
+}
+
+template<class n_type, class w_type, class k_type>
+std::pair<typename Graph<n_type, w_type, k_type>::e_iterator, bool> Graph<n_type, w_type, k_type>::insert_edge(
+        std::pair<k_type, k_type> pair, w_type weight) {
+    if (!nodes.contains(pair.first) || !nodes.contains(pair.second)){
+        throw std::out_of_range("No such node ");
+    }
+    Edge<w_type, k_type> new_edge(pair, weight);
+    return std::make_pair(graph.insert(graph.end(), new_edge), true);
+}
+
+template<class n_type, class w_type, class k_type>
+std::pair<typename Graph<n_type, w_type, k_type>::e_iterator, bool> Graph<n_type, w_type, k_type>::insert_or_assign_edge(
+        k_type begin, k_type end, w_type weight) {
+    if (!nodes.contains(begin) || !nodes.contains(end)){
+        throw std::out_of_range("No such node ");
+    }
+    auto pred = [&](const Edge<w_type, k_type> edge){return edge.first() == begin && edge.second() == end;};
+    auto iter = std::find_if(graph.begin(), graph.end(), pred);
+    if (iter == graph.end()){
+        Edge<w_type, k_type> new_edge(begin, end, weight);
+        return std::make_pair(graph.insert(iter, new_edge), true);
+    }
+    iter->set_value(begin, end, weight);
+    return std::make_pair(iter, false);
+}
+
+template<class n_type, class w_type, class k_type>
+std::pair<typename Graph<n_type, w_type, k_type>::e_iterator, bool> Graph<n_type, w_type, k_type>::insert_or_assign_edge(
+        std::pair<k_type, k_type> pair, w_type weight) {
+    if (!nodes.contains(pair.first) || !nodes.contains(pair.second)){
+        throw std::out_of_range("No such node ");
+    }
+    auto pred = [&](const Edge<w_type, k_type> edge){return edge.first() == pair.first && edge.second() == pair.second;};
+    auto iter = std::find_if(graph.begin(), graph.end(), pred);
+    if (iter == graph.end()){
+        Edge<w_type, k_type> new_edge(pair, weight);
+        return std::make_pair(graph.insert(iter, new_edge), true);
+    }
+    iter->set_value(pair, weight);
+    return std::make_pair(iter, false);
+}
+
 
 
 #endif //LABWORK3_GRAPH_H
