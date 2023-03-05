@@ -140,6 +140,13 @@ typename Graph<n_type, w_type, k_type>::const_iterator Graph<n_type, w_type, k_t
 
 template<class n_type, class w_type, class k_type>
 size_t Graph<n_type, w_type, k_type>::degree_in(k_type key) const {
+    //Node existence check
+    auto check = [&](const std::pair<k_type, n_type> pair){if(pair.first == key){return true;};return false;};
+    auto iter = std::find_if(nodes.begin(), nodes.end(), check);
+    if (iter == nodes.end()){
+        throw std::out_of_range("No such node");
+    }
+    //Counting
     size_t n = 0;
     auto p = [&](const Edge<w_type, k_type> edge){if (edge.second() == key){n++;}};
     std::for_each(graph.begin(), graph.end(), p);
@@ -148,6 +155,13 @@ size_t Graph<n_type, w_type, k_type>::degree_in(k_type key) const {
 
 template<class n_type, class w_type, class k_type>
 size_t Graph<n_type, w_type, k_type>::degree_out(k_type key) const {
+    //Node existence check
+    auto check = [&](const std::pair<k_type, n_type> pair){if(pair.first == key){return true;};return false;};
+    auto iter = std::find_if(nodes.begin(), nodes.end(), check);
+    if (iter == nodes.end()){
+        throw std::out_of_range("No such node");
+    }
+    //Counting
     size_t n = 0;
     auto p = [&](const Edge<w_type, k_type> edge){if (edge.first() == key){n++;}};
     std::for_each(graph.begin(), graph.end(), p);
@@ -156,9 +170,16 @@ size_t Graph<n_type, w_type, k_type>::degree_out(k_type key) const {
 
 template<class n_type, class w_type, class k_type>
 bool Graph<n_type, w_type, k_type>::loop(k_type key) const {
+    //Node existence check
+    auto check = [&](const std::pair<k_type, n_type> pair){if(pair.first == key){return true;};return false;};
+    auto iter = std::find_if(nodes.begin(), nodes.end(), check);
+    if (iter == nodes.end()){
+        throw std::out_of_range("No such node");
+    }
+    //Checking for a loop
     auto p = [&](const Edge<w_type, k_type> edge){return (edge.first() == key && edge.second() == key);};
-    auto iter = std::find_if(graph.begin(), graph.end(), p);
-    return iter != graph.end();
+    auto it = std::find_if(graph.begin(), graph.end(), p);
+    return it != graph.end();
 }
 
 #endif //LABWORK3_GRAPH_H
