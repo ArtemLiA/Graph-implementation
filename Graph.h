@@ -35,10 +35,12 @@ public:
     iterator end();
     const_iterator cbegin() const;
     const_iterator cend() const;
+
     //Methods for work with graph data
     size_t degree_in(key_type key) const;
     size_t degree_out(key_type key) const;
     bool loop(key_type key) const;
+
     //Inserting nodes and edges
     std::pair<iterator, bool> insert_node(key_type key, node_type value = node_type());
     std::pair<iterator, bool> insert_node(std::pair<key_type, node_type> node);
@@ -49,13 +51,16 @@ public:
     std::pair<e_iterator, bool> insert_edge(std::pair<key_type, key_type> pair, weight_type weight);
     std::pair<e_iterator, bool> insert_or_assign_edge(key_type begin, key_type end, weight_type weight);
     std::pair<e_iterator, bool> insert_or_assign_edge(std::pair<key_type, key_type> pair, weight_type weight);
+
     //Erasing nodes and edges
     void clear_edges();
     bool erase_edges_go_from(key_type key);
     bool erase_edges_go_to(key_type key);
     bool erase_node(key_type key);
+
     //Working with file
     bool load_from_file(const std::string& path);
+    void save_to_file(const std::string& path);
 };
 
 //CONSTRUCTORS
@@ -301,32 +306,40 @@ bool Graph<n_type, w_type, k_type>::erase_node(k_type key) {
 
 template<class n_type, class w_type, class k_type>
 bool Graph<n_type, w_type, k_type>::load_from_file(const std::string& path){
-    std::fstream file;
+    std::ifstream file;
     file.open(path);
     if (!file.is_open()){
         return false;
     }
+
+    //Read dimensions
     size_t nodes_number;
     size_t edges_number;
-    //Read dimensions
     file >> nodes_number;
     file >> edges_number;
+
     //Containers
     std::map<k_type, n_type> nodes_map;
     std::list<Edge<w_type, k_type>> edges_list;
+
     //Values for read
     k_type node_key;
     n_type node_value;
+
+    //Reading nodes
     for (size_t idx = 0; idx < nodes_number; idx++){
         file >> node_key;
         file >> node_value;
         nodes_map[node_key] = node_value;
     }
-    //Values for read
+
+    //Values for reading edges
     k_type begin = k_type();
     k_type end = k_type();
     w_type weight = w_type();
     Edge<w_type, k_type> new_edge(begin, end, weight);
+
+    //Reading edges
     for (size_t idx = 0; idx < edges_number; idx++){
         file >> begin;
         file >> end;
@@ -335,13 +348,41 @@ bool Graph<n_type, w_type, k_type>::load_from_file(const std::string& path){
             file.close();
             throw std::out_of_range("Incorrect data in the file");
         }
-        std::cout << begin << " " << end << " " << weight << std::endl;
         new_edge.set_value(begin, end, weight);
         edges_list.insert(edges_list.end(), new_edge);
     }
+    file.close();
+
+    //Moving containers to the graph
     nodes = std::move(nodes_map);
     graph = std::move(edges_list);
     return true;
+}
+
+template<class n_type, class w_type, class k_type>
+void Graph<n_type, w_type, k_type>::save_to_file(const std::string &path) {
+    std::ofstream file;
+    file.open(path);
+    //Check if the file has been opened?
+    if (!file.is_open()){
+        return;
+    }
+    //Separator
+    char sep = ' ';
+
+    //Recording size information
+    file << nodes.size() << sep << graph.size() << std::endl;
+
+    //Recording nodes information
+    std::for_each(nodes.cbegin(), nodes.cend(), [&](const std::pair<k_type, n_type>& pair)
+    {file << pair.first << sep << pair.second << std::endl;});
+    file << std::endl;
+
+    //Recording edges information
+    std::for_each(graph.cbegin(), graph.cend(), [&](const Edge<w_type, k_type>& edge)
+    {file << edge.first() << sep << edge.second() << sep << edge.get_weight() << std::endl;});
+
+    file.close();
 }
 
 #endif //LABWORK3_GRAPH_H
