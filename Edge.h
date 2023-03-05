@@ -62,4 +62,16 @@ bool Edge<weight_type, key_type>::is_ending_equal(key_type end) const {
     return nodes.second == end;
 }
 
+template<class weight_type, class key_type>
+void Edge<weight_type, key_type>::set_value(std::pair<key_type, key_type> pair, weight_type w) {
+    nodes = pair;
+    weight = w;
+}
+
+template<class weight_type, class key_type>
+void Edge<weight_type, key_type>::set_value(key_type begin, key_type end, weight_type w) {
+    nodes = std::make_pair(begin, end);
+    weight = w;
+}
+
 #endif //LABWORK3_EDGE_H
