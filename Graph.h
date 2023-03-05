@@ -353,7 +353,7 @@ bool Graph<n_type, w_type, k_type>::load_from_file(const std::string& path){
     }
     file.close();
 
-    //Moving containers to the graph
+    //Moving containers to the graphs
     nodes = std::move(nodes_map);
     graph = std::move(edges_list);
     return true;
@@ -363,15 +363,17 @@ template<class n_type, class w_type, class k_type>
 void Graph<n_type, w_type, k_type>::save_to_file(const std::string &path) {
     std::ofstream file;
     file.open(path);
+
     //Check if the file has been opened?
     if (!file.is_open()){
         return;
     }
+
     //Separator
     char sep = ' ';
 
     //Recording size information
-    file << nodes.size() << sep << graph.size() << std::endl;
+    file << nodes.size() << sep << graph.size() << std::endl << std::endl;
 
     //Recording nodes information
     std::for_each(nodes.cbegin(), nodes.cend(), [&](const std::pair<k_type, n_type>& pair)
