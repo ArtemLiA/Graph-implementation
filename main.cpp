@@ -13,8 +13,26 @@ int main() {
     auto cend = g1.cend();
     std::cout << "program completed successfully" << std::endl;
     std::cout << cbeg->first << cbeg ->second << std::endl;
-    std::cout << g1.loop(0) << std::endl;
-    std::cout << g1.degree_in(5) << std::endl;
-    std::cout << g1.degree_out(0) << std::endl;
+    //loop check
+    try {
+        std::cout << g1.loop(0) << std::endl;
+    }
+    catch(std::out_of_range out){
+        std::cout << out.what() << std::endl;
+    }
+    //degree_in check
+    try {
+        std::cout << g1.degree_in(0) << std::endl;
+    }
+    catch(std::out_of_range out){
+        std::cout << out.what() << std::endl;
+    }
+    //degree_out check
+    try {
+        std::cout << g1.degree_out(0) << std::endl;
+    }
+    catch(std::out_of_range out){
+        std::cout << out.what() << std::endl;
+    }
     return 0;
 }
